@@ -44,16 +44,16 @@ export default function Welcome() {
                         <div className="flex-1 rounded-br-lg rounded-bl-lg bg-white p-6 pb-12 text-[13px] leading-[20px] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-tl-lg lg:rounded-br-none lg:p-20 dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]">
                             <h1 className="mb-4 font-medium text-xl">Mountbirch Training App</h1>
                             <p className="mb-2 text-[#706f6c] dark:text-[#A1A09A]">
-                                This is a training app for built for Mountbirch.
+                                This is a training app  built for Mountbirch.
                                 <br />
                                 <div className="flex flex-col my-2">
                                     <div className='flex items-center gap-2'>
                                         <Dot className='flex-shrink-0' size={36}/>
-                                        <p>For customers it allows you to browse trainings and register for them</p>
+                                        <p>For customers it allows you to browse trainings and register to trainings</p>
                                     </div>
                                     <div className='flex items-center gap-2'>
                                         <Dot className='flex-shrink-0' size={36}/>
-                                        <p>For admins it allows you to manage trainings and registrations
+                                        <p>For administrators it allows to manage trainings as well as registrations (can be deleted, status can be changed)
 
                                         </p>
                                     </div>
