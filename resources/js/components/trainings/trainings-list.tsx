@@ -103,17 +103,17 @@ export function TrainingsList({ trainings, isAdmin }: { trainings: Training[], i
                 <div className="flex-2 flex flex-col gap-2">
                   {/* Date */}
                   <div className="flex items-center gap-2">
-                    <CalendarIcon size={18} />
+                    <CalendarIcon size={18} className="flex-shrink-0"/>
                     <p className=" text-muted-foreground">{format(new Date(training.date), 'dd/MM/yyyy HH:mm')}</p>
                   </div>
                   {/* Location */}
                   <div className="flex items-center gap-2">
-                    <MapPinIcon size={18} />
+                    <MapPinIcon size={18} className="flex-shrink-0"/>
                     <p className=" text-muted-foreground">{training.location}</p>
                   </div>
                   {/* Max participants */}
                   <div className="flex items-center gap-2">
-                    <UsersIcon size={18} />
+                    <UsersIcon size={18} className="flex-shrink-0"/>
                     <p className=" text-muted-foreground">
                       {training.registrations_count || 0}/{training.max_participants}
                     </p>
