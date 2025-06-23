@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { 
     Dialog, 
-    DialogClose, 
     DialogContent, 
     DialogDescription, 
     DialogHeader, 
@@ -9,7 +8,6 @@ import {
     DialogTrigger 
 } from "@/components/ui/dialog";
 import { TrainingForm } from "./create-training-form";
-import { X } from "lucide-react";
 
 export function CreateTraining() {
     return (

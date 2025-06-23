@@ -14,43 +14,22 @@ import {
     AlertDialogTitle, 
     AlertDialogTrigger 
 } from "../ui/alert-dialog";
-import { useState } from "react";
+import { Registration } from "@/types";
 
-interface Registration {
-    id: number;
-    status: string;
-    registered_at: string;
-    training: {
-        id: number;
-        title: string;
-        description: string;
-        date: string;
-        location: string;
-        max_participants: number;
-        registrations_count: number;
-    };
-}
 
 interface MyTrainingsCustomerProps {
     registrations: Registration[];
 }
 
 export function MyTrainingsCustomer({ registrations }: MyTrainingsCustomerProps) {
-    const [cancellingId, setCancellingId] = useState<number | null>(null);
-
     const handleCancelRegistration = (registrationId: number) => {
         router.delete(route('registrations.destroy', registrationId), {
             onSuccess: () => {
-                setCancellingId(null);
                 toast.success('Registration deleted successfully');
-                // Refetch the current page data to update the UI
-                router.get(route('trainings.customer.edit'), {}, {
-                    preserveState: true,
-                    preserveScroll: true,
-                });
+                // Invalidate all related data to keep all pages in sync
+                router.reload({ only: ['registrations', 'trainings'] });
             },
             onError: (errors) => {
-                setCancellingId(null);
                 if (errors.general) {
                     toast.error(errors.general);
                 } else {

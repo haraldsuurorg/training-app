@@ -4,7 +4,7 @@ import { NavUser } from '@/components/theme/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Calendar, Folder, LayoutGrid, Users } from 'lucide-react';
+import { Calendar, Folder, LayoutGrid, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const getMainNavItems = (isAdmin: boolean): NavItem[] => {
@@ -22,7 +22,7 @@ const getMainNavItems = (isAdmin: boolean): NavItem[] => {
             ...baseItems,
             {
                 title: 'Manage Registrations',
-                href: '/admin/registrations',
+                href: '/manage-registrations',
                 icon: Users,
             },
         ];
@@ -42,7 +42,7 @@ const getMainNavItems = (isAdmin: boolean): NavItem[] => {
 const footerNavItems: NavItem[] = [
     {
         title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
+        href: 'https://github.com/haraldsuurorg/training-app',
         icon: Folder,
     }
 ];

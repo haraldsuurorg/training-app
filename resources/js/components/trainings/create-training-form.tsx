@@ -63,7 +63,7 @@ export function TrainingForm({ training, onSuccess }: TrainingFormProps = {}) {
             },
             onError: (errors) => {
                 Object.keys(errors).forEach(key => {
-                    form.setError(key as any, {
+                    form.setError(key as keyof z.infer<typeof formSchema>, {
                         message: errors[key]
                     });
                 });

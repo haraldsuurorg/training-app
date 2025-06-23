@@ -23,21 +23,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Admin routes
     Route::middleware(AdminMiddleware::class)->group(function () {
-        Route::get('manage-trainings', [TrainingsController::class, 'index'])->name('trainings.admin.index');
+        Route::get('manage-trainings', [TrainingsController::class, 'index'])->name('trainings.manage');
         Route::get('trainings/create', [TrainingsController::class, 'create'])->name('trainings.create');
         Route::post('trainings/store', [TrainingsController::class, 'store'])->name('trainings.store');
         Route::put('trainings/update/{id}', [TrainingsController::class, 'update'])->name('trainings.update');
         Route::delete('trainings/destroy/{id}', [TrainingsController::class, 'destroy'])->name('trainings.destroy');
         
         // Registration management routes
-        Route::get('admin/registrations', [RegistrationsController::class, 'index'])->name('admin.registrations.index');
+        Route::get('manage-registrations', [RegistrationsController::class, 'index'])->name('registrations.manage');
         Route::put('registrations/{id}/status', [RegistrationsController::class, 'updateStatus'])->name('registrations.update-status');
     });
 
     // Customer routes
     Route::get('my-trainings', [TrainingsController::class, 'userIndex'])->name('trainings.customer.edit');
-    
-    // Registration routes
     Route::post('registrations/store', [RegistrationsController::class, 'store'])->name('registrations.store');
     Route::delete('registrations/{id}', [RegistrationsController::class, 'destroy'])->name('registrations.destroy');
 });

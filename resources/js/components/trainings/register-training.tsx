@@ -41,12 +41,8 @@ export function RegisterTraining({ training }: RegisterTrainingProps) {
                 setAlertOpen(false);
                 setOpen(false);
                 toast.success('Registration successful');
-                // Refetch dashboard data to update registration counts
-                router.get(route('dashboard'), {}, {
-                    preserveState: true,
-                    preserveScroll: true,
-                    only: ['trainings']
-                });
+                // Invalidate all related data to keep all pages in sync
+                router.reload({ only: ['trainings', 'registrations'] });
             },
             onError: (errors) => {
                 // Show specific error messages if available

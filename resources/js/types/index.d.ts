@@ -52,3 +52,34 @@ export interface Training {
     registrations_count?: number;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export interface Registration {
+    id: number;
+    status: string;
+    registered_at: string;
+    training: {
+        id: number;
+        title: string;
+        description: string;
+        date: string;
+        location: string;
+        max_participants: number;
+        registrations_count: number;
+    };
+}
+
+export interface RegistrationData {
+    id: number;
+    status: string;
+    registered_at: string;
+    user: {
+      id: number;
+      name: string;
+      email: string;
+    };
+    training: {
+      id: number;
+      title: string;
+      date: string;
+    };
+  }

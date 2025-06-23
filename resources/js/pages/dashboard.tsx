@@ -1,5 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
+import { Training, type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { CreateTraining } from '@/components/trainings/create-training';
 import { TrainingsList } from '@/components/trainings/trainings-list';
@@ -14,7 +14,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Dashboard() {
     const { auth, trainings } = usePage().props as unknown as {
         auth: { user: { role: string } };
-        trainings: any[];
+        trainings: Training[];
     };
     const isAdmin = auth.user.role === 'admin';
 

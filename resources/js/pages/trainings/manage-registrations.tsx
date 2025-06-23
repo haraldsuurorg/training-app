@@ -1,32 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { router } from "@inertiajs/react";
-import { toast } from "sonner";
-import { format } from "date-fns";
-import { MoreHorizontal, Trash2 } from "lucide-react";
 import { 
     AlertDialog, 
     AlertDialogAction, 
@@ -36,25 +10,13 @@ import {
     AlertDialogFooter, 
     AlertDialogHeader, 
     AlertDialogTitle, 
-    AlertDialogTrigger 
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
-
-interface RegistrationData {
-  id: number;
-  status: string;
-  registered_at: string;
-  user: {
-    id: number;
-    name: string;
-    email: string;
-  };
-  training: {
-    id: number;
-    title: string;
-    date: string;
-  };
-}
+import { RegistrationData } from "@/types";
+import { DataTable } from "@/components/manage-registrations/data-table";
+import { createColumns } from "@/components/manage-registrations/columns";
+import { router } from "@inertiajs/react";
+import { toast } from "sonner";
 
 interface ManageRegistrationsProps {
   registrations: RegistrationData[];
@@ -82,12 +44,8 @@ export default function ManageRegistrations() {
     }, {
       onSuccess: () => {
         toast.success('Registration status updated successfully');
-        // Refetch the current page data to update the table
-        router.get(route('admin.registrations.index'), {}, {
-          preserveState: true,
-          preserveScroll: true,
-          only: ['registrations']
-        });
+        // Invalidate all related data to keep all pages in sync
+        router.reload({ only: ['trainings', 'registrations'] });
       },
       onError: (errors) => {
         if (errors.general) {
@@ -112,12 +70,8 @@ export default function ManageRegistrations() {
         toast.success('Registration deleted successfully');
         setDeletingId(null);
         setIsDeleting(false);
-        // Refetch the current page data to update the table
-        router.get(route('admin.registrations.index'), {}, {
-          preserveState: true,
-          preserveScroll: true,
-          only: ['registrations']
-        });
+        // Invalidate all related data to keep all pages in sync
+        router.reload({ only: ['trainings', 'registrations'] });
       },
       onError: (errors) => {
         setIsDeleting(false);
@@ -137,6 +91,11 @@ export default function ManageRegistrations() {
 
   const currentRegistration = registrations.find(r => r.id === deletingId);
 
+  const columns = createColumns({
+    onStatusChange: handleStatusChange,
+    onDeleteClick: handleDeleteClick,
+  });
+
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Manage Registrations" />
@@ -148,82 +107,9 @@ export default function ManageRegistrations() {
           </div>
         </div>
 
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Training</TableHead>
-                <TableHead>Training Date</TableHead>
-                <TableHead>Registered Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[50px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {registrations.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
-                    No registrations found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                registrations.map((registration) => (
-                  <TableRow key={registration.id}>
-                    <TableCell className="font-medium">
-                      {registration.user.name}
-                    </TableCell>
-                    <TableCell>{registration.user.email}</TableCell>
-                    <TableCell>{registration.training.title}</TableCell>
-                    <TableCell>
-                      {format(new Date(registration.training.date), 'dd/MM/yyyy HH:mm')}
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(registration.registered_at), 'dd/MM/yyyy')}
-                    </TableCell>
-                    <TableCell>
-                      <Select
-                        value={registration.status}
-                        onValueChange={(value) => handleStatusChange(registration.id, value)}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="confirmed">Confirmed</SelectItem>
-                          <SelectItem value="cancelled">Cancelled</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem 
-                            className="text-red-600 focus:text-red-600 cursor-pointer"
-                            onClick={() => handleDeleteClick(registration.id)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Registration
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+        <DataTable columns={columns} data={registrations} />
         
-        {/* Delete Confirmation Dialog - Outside the table to prevent conflicts */}
+        {/* Delete Confirmation Dialog */}
         <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && handleDeleteCancel()}>
           <AlertDialogContent>
             <AlertDialogHeader>
