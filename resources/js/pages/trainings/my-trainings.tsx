@@ -16,12 +16,19 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function MyTrainings() {
-    const { registrations } = usePage().props as unknown as {
+    const { registrations, futureRegistrations } = usePage().props as unknown as {
         registrations: Registration[];
+        futureRegistrations: Registration[];
     };
 
     // Transform registrations to trainings format with registration info
     const myTrainings: (Training & { registrationId: number; registeredAt: string })[] = registrations.map(registration => ({
+        ...registration.training,
+        registrationId: registration.id,
+        registeredAt: registration.registered_at,
+    }));
+
+    const myFutureTrainings: (Training & { registrationId: number; registeredAt: string })[] = futureRegistrations.map(registration => ({
         ...registration.training,
         registrationId: registration.id,
         registeredAt: registration.registered_at,
@@ -38,7 +45,7 @@ export default function MyTrainings() {
                         <p className="text-muted-foreground">You haven't registered for any trainings yet.</p>
                     </div>
                 ) : (
-                    <TrainingsList trainings={myTrainings} isAdmin={false} />
+                    <TrainingsList trainings={myTrainings} futureTrainings={myFutureTrainings} isAdmin={false} />
                 )}
             </div>
         </AppLayout>

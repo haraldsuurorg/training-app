@@ -13,6 +13,23 @@ use App\Enums\UserRole;
 class RegistrationsController extends Controller
 {
     /**
+     * Display all registrations for admin management
+     */
+    public function index()
+    {
+        $registrations = Registration::with(['user', 'training'])
+            ->join('trainings', 'registrations.training_id', '=', 'trainings.id')
+            ->select('registrations.*')
+            ->where('trainings.date', '>=', now())
+            ->orderBy('trainings.date', 'asc')
+            ->get();
+
+        return Inertia::render('trainings/manage-registrations', [
+            'registrations' => $registrations,
+        ]);
+    }
+
+    /**
      * Store a new registration
      */
     public function store(Request $request)
@@ -30,24 +47,13 @@ class RegistrationsController extends Controller
             $user = auth()->user();
             $trainingId = $request->training_id;
 
-            Log::info('Validation passed', [
-                'user_id' => $user->id,
-                'training_id' => $trainingId
-            ]);
-
             // Check if user is already registered for this training
             $existingRegistration = Registration::where('user_id', $user->id)
                 ->where('training_id', $trainingId)
                 ->where('status', '!=', 'cancelled')
                 ->first();
 
-            if ($existingRegistration) {
-                Log::warning('User already registered', [
-                    'user_id' => $user->id,
-                    'training_id' => $trainingId,
-                    'existing_registration_id' => $existingRegistration->id
-                ]);
-                
+            if ($existingRegistration) {                
                 return redirect()->back()->withErrors([
                     'training_id' => 'You are already registered for this training.',
                 ]);
@@ -59,25 +65,14 @@ class RegistrationsController extends Controller
                 ->where('status', '!=', 'cancelled')
                 ->count();
 
-            if ($activeRegistrationsCount >= $training->max_participants) {
-                Log::warning('Training is full', [
-                    'training_id' => $trainingId,
-                    'active_registrations' => $activeRegistrationsCount,
-                    'max_participants' => $training->max_participants
-                ]);
-                
+            if ($activeRegistrationsCount >= $training->max_participants) {                
                 return redirect()->back()->withErrors([
                     'training_id' => 'This training is full. No more spots available.',
                 ]);
             }
 
             // Check if training date is in the future
-            if ($training->date <= now()) {
-                Log::warning('Training is in the past', [
-                    'training_id' => $trainingId,
-                    'training_date' => $training->date
-                ]);
-                
+            if ($training->date <= now()) {                
                 return redirect()->back()->withErrors([
                     'training_id' => 'Cannot register for past trainings.',
                 ]);
@@ -89,12 +84,6 @@ class RegistrationsController extends Controller
                 'training_id' => $trainingId,
                 'status' => 'confirmed',
                 'registered_at' => now(),
-            ]);
-
-            Log::info('Registration created successfully', [
-                'registration_id' => $registration->id,
-                'user_id' => $user->id,
-                'training_id' => $trainingId
             ]);
 
             return redirect()->back()->with('success', 'Successfully registered for the training!');
@@ -139,13 +128,6 @@ class RegistrationsController extends Controller
 
             // Delete the registration completely
             $registration->delete();
-
-            Log::info('Registration deleted successfully', [
-                'registration_id' => $registration->id,
-                'user_id' => auth()->id(),
-                'training_id' => $registration->training_id
-            ]);
-
             return redirect()->back()->with('success', 'Registration cancelled successfully!');
 
         } catch (\Exception $e) {
@@ -162,20 +144,6 @@ class RegistrationsController extends Controller
     }
 
     /**
-     * Display all registrations for admin management
-     */
-    public function index()
-    {
-        $registrations = Registration::with(['user', 'training'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return Inertia::render('trainings/manage-registrations', [
-            'registrations' => $registrations,
-        ]);
-    }
-
-    /**
      * Update registration status
      */
     public function updateStatus(Request $request, $id)
@@ -187,13 +155,6 @@ class RegistrationsController extends Controller
 
             $registration = Registration::findOrFail($id);
             $registration->update(['status' => $request->status]);
-
-            Log::info('Registration status updated', [
-                'registration_id' => $registration->id,
-                'old_status' => $registration->getOriginal('status'),
-                'new_status' => $request->status,
-                'updated_by' => auth()->id()
-            ]);
 
             return redirect()->back()->with('success', 'Registration status updated successfully!');
 

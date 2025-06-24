@@ -12,14 +12,8 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        $trainings = Training::withCount('registrations')->latest()->get();
-        return Inertia::render('dashboard', [
-            'trainings' => $trainings,
-        ]);
-    })->name('dashboard');
-
-    Route::get('trainings', [TrainingsController::class, 'index'])->name('trainings.index');
+    // Dashboard route for displaying trainings for both admin and customer
+    Route::get('dashboard', [TrainingsController::class, 'index'])->name('dashboard');
     
     // Admin routes
     Route::middleware(AdminMiddleware::class)->group(function () {
@@ -29,7 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('trainings/update/{id}', [TrainingsController::class, 'update'])->name('trainings.update');
         Route::delete('trainings/destroy/{id}', [TrainingsController::class, 'destroy'])->name('trainings.destroy');
         
-        // Registration management routes
+        // Registration management
         Route::get('manage-registrations', [RegistrationsController::class, 'index'])->name('registrations.manage');
         Route::put('registrations/{id}/status', [RegistrationsController::class, 'updateStatus'])->name('registrations.update-status');
     });

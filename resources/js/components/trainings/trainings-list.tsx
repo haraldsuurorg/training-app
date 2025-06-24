@@ -7,7 +7,6 @@ import {
   ColumnDef,
   ColumnFiltersState,
   SortingState,
-  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -35,16 +34,20 @@ const columns: ColumnDef<Training>[] = [
         training.location.toLowerCase().includes(searchValue)
       )
     },
-  },
+  }
 ]
 
-export function TrainingsList({ trainings, isAdmin }: { trainings: Training[], isAdmin: boolean }) {
+export function TrainingsList({ trainings, futureTrainings, isAdmin }: { trainings: Training[], futureTrainings: Training[], isAdmin: boolean }) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = React.useState("")
+  const [showPastTrainings, setShowPastTrainings] = React.useState(false)
+
+  // Use futureTrainings by default, switch to all trainings when toggle is on
+  const currentTrainings = showPastTrainings ? trainings : futureTrainings
 
   const table = useReactTable({
-    data: trainings,
+    data: currentTrainings,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -79,14 +82,21 @@ export function TrainingsList({ trainings, isAdmin }: { trainings: Training[], i
 
   return (
     <div className="w-full">
-      {/* Search Input */}
-      <div className="flex items-center py-4">
+      {/* Search Input and Toggle */}
+      <div className="flex items-center justify-between py-4">
         <Input
           placeholder="Search trainings by title, description, or location"
           value={globalFilter ?? ""}
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-md"
         />
+        <Button
+          variant={showPastTrainings ? "default" : "outline"}
+          onClick={() => setShowPastTrainings(!showPastTrainings)}
+          className="ml-4"
+        >
+          {showPastTrainings ? "Hide past trainings" : "Show past trainings"}
+        </Button>
       </div>
 
       {/* Training Cards */}
@@ -108,12 +118,12 @@ export function TrainingsList({ trainings, isAdmin }: { trainings: Training[], i
                   </div>
                   {/* Location */}
                   <div className="flex items-center gap-2">
-                    <MapPinIcon size={18} className="flex-shrink-0"/>
+                    <MapPinIcon size={18} />
                     <p className=" text-muted-foreground">{training.location}</p>
                   </div>
                   {/* Max participants */}
                   <div className="flex items-center gap-2">
-                    <UsersIcon size={18} className="flex-shrink-0"/>
+                    <UsersIcon size={18} />
                     <p className=" text-muted-foreground">
                       {training.registrations_count || 0}/{training.max_participants}
                     </p>

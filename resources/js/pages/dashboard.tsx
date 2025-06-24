@@ -12,9 +12,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Dashboard() {
-    const { auth, trainings } = usePage().props as unknown as {
+    const { auth, trainings, futureTrainings } = usePage().props as unknown as {
         auth: { user: { role: string } };
         trainings: Training[];
+        futureTrainings: Training[];
     };
     const isAdmin = auth.user.role === 'admin';
 
@@ -25,7 +26,7 @@ export default function Dashboard() {
                 {isAdmin && (
                     <CreateTraining />
                 )}
-                <TrainingsList trainings={trainings} isAdmin={isAdmin} />
+                <TrainingsList trainings={trainings} futureTrainings={futureTrainings} isAdmin={isAdmin} />
             </div>
         </AppLayout>
     );

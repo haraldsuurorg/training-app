@@ -10,41 +10,56 @@ use Inertia\Inertia;
 class TrainingsController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display all the trainings.
      */
-        public function index()
-        {
-            $trainings = Training::withCount('registrations')->get();
-            return Inertia::render('trainings.index', [
-                'trainings' => $trainings,
-            ]);
-        }
+    public function index()
+    {
+        $trainings = Training::withCount('registrations')
+            ->orderBy('date', 'asc')
+            ->get();
+        $futureTrainings = Training::withCount('registrations')
+            ->where('date', '>=', now())
+            ->orderBy('date', 'asc')
+            ->get();
+
+        return Inertia::render('dashboard', [
+            'trainings' => $trainings,
+            'futureTrainings' => $futureTrainings,
+        ]);
+    }
 
     /**
-     * Display the current user's registered trainings.
+     * Display the current user's (not admin) registered trainings.
      */
     public function userIndex()
     {
         $user = auth()->user();
+        
         $registrations = $user->registrations()
             ->with(['training' => function($query) {
                 $query->withCount('registrations');
             }])
             ->where('status', '!=', 'cancelled')
-            ->latest()
+            ->join('trainings', 'registrations.training_id', '=', 'trainings.id')
+            ->select('registrations.*')
+            ->orderBy('trainings.date', 'asc')
+            ->get();
+    
+        $futureRegistrations = $user->registrations()
+            ->with(['training' => function($query) {
+                $query->withCount('registrations');
+            }])
+            ->where('registrations.status', '!=', 'cancelled')
+            ->join('trainings', 'registrations.training_id', '=', 'trainings.id')
+            ->where('trainings.date', '>=', now())
+            ->select('registrations.*')
+            ->orderBy('trainings.date', 'asc')
             ->get();
 
         return Inertia::render('trainings/my-trainings', [
             'registrations' => $registrations,
+            'futureRegistrations' => $futureRegistrations,
         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -67,25 +82,6 @@ class TrainingsController extends Controller
             \Log::error('Failed to create training: ' . $e->getMessage());
             return redirect()->route('dashboard')->with('error', 'Failed to create training');
         }
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        $training = Training::find($id);
-        return Inertia::render('trainings.admin.edit', [
-            'training' => $training,
-        ]);
     }
 
     /**
